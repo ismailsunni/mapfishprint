@@ -7,6 +7,7 @@ import {
   getDownloadUrl,
   cancelPrint,
 } from '@geoblocks/mapfishprint';
+import KML from 'ol/format/KML.js';
 import TileLayer from 'ol/layer/Tile.js';
 import OSM from 'ol/source/OSM.js';
 import ImageWMS from 'ol/source/ImageWMS.js';
@@ -19,7 +20,7 @@ import {getPrintExtent} from './lib/utils.js';
 import ImageLayer from 'ol/layer/Image.js';
 
 const MFP_URL = 'https://geomapfish-demo-2-8.camptocamp.com/printproxy';
-const layout = '1 A4 portrait'; // better take from MFP
+const layout = '2 A4 landscape'; // better take from MFP
 const pageSize = [254, 675]; // better take from MFP
 const getStyleFn = (fillColor) => {
   const fill = new Fill({color: fillColor});
@@ -96,6 +97,14 @@ const wmsLayer = new ImageLayer({
   }),
 });
 
+// KML Layer
+const kmlLayer = new VectorLayer({
+  source: new VectorSource({
+    url: 'data/algie.kml',
+    format: new KML(),
+  }),
+});
+
 const map = new Map({
   target: 'map',
   layers: [
@@ -104,6 +113,7 @@ const map = new Map({
     }),
     vectorLayer,
     wmsLayer,
+    kmlLayer,
   ],
   view: new View({
     center: [796612, 5836960],
@@ -133,7 +143,7 @@ document.querySelector('#print').addEventListener('click', async () => {
   const resultEl = document.querySelector('#result');
   specEl.innerHTML = reportEl.innerHTML = resultEl.innerHTML = '';
   const encoder = new MFPEncoder(MFP_URL);
-  const scale = 10000;
+  const scale = 500000;
   const center = map.getView().getCenter();
   const customizer = new BaseCustomizer(getPrintExtent(pageSize, center, scale));
   /**
@@ -141,7 +151,7 @@ document.querySelector('#print').addEventListener('click', async () => {
    */
   const mapSpec = await encoder.encodeMap({
     map,
-    scale: 10000,
+    scale: scale,
     printResolution: map.getView().getResolution(),
     dpi: 254,
     customizer: customizer,
