@@ -1,4 +1,4 @@
-import {Map, View} from 'ol';
+import {Map, Overlay, View} from 'ol';
 
 import {
   MFPEncoder,
@@ -7,6 +7,7 @@ import {
   getDownloadUrl,
   cancelPrint,
 } from '@geoblocks/mapfishprint';
+import GPX from 'ol/format/GPX.js';
 import KML from 'ol/format/KML.js';
 import TileLayer from 'ol/layer/Tile.js';
 import OSM from 'ol/source/OSM.js';
@@ -18,6 +19,8 @@ import Feature from './ol/Feature.js';
 import {Polygon, LineString, Point, Circle as CircleGeom} from 'ol/geom.js';
 import {getPrintExtent} from './lib/utils.js';
 import ImageLayer from 'ol/layer/Image.js';
+import CircleStyle from 'ol/style/Circle.js';
+import {fromLonLat} from 'ol/proj.js';
 
 const MFP_URL = 'https://geomapfish-demo-2-8.camptocamp.com/printproxy';
 const layout = '2 A4 landscape'; // better take from MFP
@@ -105,6 +108,83 @@ const kmlLayer = new VectorLayer({
   }),
 });
 
+const gpxStyle = {
+  Point: new Style({
+    image: new CircleStyle({
+      fill: new Fill({
+        color: 'rgba(255,0,0,0.4)',
+      }),
+      radius: 5,
+      stroke: new Stroke({
+        color: '#f00',
+        width: 1,
+      }),
+    }),
+  }),
+  LineString: new Style({
+    stroke: new Stroke({
+      color: '#00f',
+      width: 3,
+    }),
+  }),
+  MultiLineString: new Style({
+    stroke: new Stroke({
+      color: '#0f0',
+      width: 3,
+    }),
+  }),
+};
+
+function hexToRgba(hexValue, alpha = 1.0) {
+  return [
+    ...hexValue
+      .replaceAll('#', '')
+      .match(/.{1,2}/g)
+      .map((value) => parseInt(value, 16)),
+    alpha,
+  ];
+}
+
+const red = '#f7001d';
+const black = '#000000';
+const white = '#ffffff';
+
+export const redFill = new Fill({
+  color: hexToRgba(red, 0.7),
+});
+
+/** Standard line styling */
+export const redStroke = new Stroke({
+  width: 3,
+  color: hexToRgba(red),
+});
+export const pointStyle = {
+  radius: 7,
+  stroke: new Stroke({
+    color: hexToRgba(black),
+  }),
+};
+export const circleStyle = new Circle({
+  ...pointStyle,
+  fill: new Fill({
+    color: hexToRgba(white),
+  }),
+});
+
+const gpxStyleGeoAdmin = new Style({
+  fill: redFill,
+  stroke: redStroke,
+  image: circleStyle,
+});
+
+const gpxLayer = new VectorLayer({
+  source: new VectorSource({
+    url: 'data/test.gpx',
+    format: new GPX(),
+  }),
+  style: gpxStyleGeoAdmin,
+});
+
 const map = new Map({
   target: 'map',
   layers: [
@@ -114,6 +194,7 @@ const map = new Map({
     vectorLayer,
     wmsLayer,
     kmlLayer,
+    gpxLayer,
   ],
   view: new View({
     center: [796612, 5836960],
@@ -121,6 +202,19 @@ const map = new Map({
   }),
 });
 
+// Create an overlay to show the label
+const label = document.createElement('div');
+label.className = 'label';
+label.textContent = 'Hotel';
+
+const overlay = new Overlay({
+  element: label,
+  position: fromLonLat([7.1531179035150005, 46.354365228570124]), // replace with the longitude and latitude of the hotel
+  positioning: 'center-center',
+});
+
+// Add the overlay to the map
+map.addOverlay(overlay);
 let report = null;
 
 document.querySelector('#cancel').addEventListener('click', async () => {
@@ -138,12 +232,13 @@ document.querySelector('#cancel').addEventListener('click', async () => {
 });
 
 document.querySelector('#print').addEventListener('click', async () => {
+  console.log('print');
   const specEl = document.querySelector('#spec');
   const reportEl = document.querySelector('#report');
   const resultEl = document.querySelector('#result');
   specEl.innerHTML = reportEl.innerHTML = resultEl.innerHTML = '';
   const encoder = new MFPEncoder(MFP_URL);
-  const scale = 500000;
+  const scale = 50000;
   const center = map.getView().getCenter();
   const customizer = new BaseCustomizer(getPrintExtent(pageSize, center, scale));
   /**
