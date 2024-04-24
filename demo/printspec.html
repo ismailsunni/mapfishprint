@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mapfishprint geoblocks demo</title>
+    <style>
+      .label {
+        background-color: white;
+        padding: 8px;
+        border: 1px solid black;
+        border-radius: 4px;
+      }
+    </style>
+    <link rel="stylesheet" type="text/css" href="./ol/ol.css" crossorigin="anonymous" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="importmap">
+      {
+        "imports": {
+          "pbf": "./stub.js",
+          "rbush": "./rbush/index.js",
+          "quickselect": "./quickselect/index.js",
+          "ol": "./ol/index.js",
+          "ol/": "./ol/",
+          "color-space/": "./color-space/",
+          "color-rgba": "./color-rgba/index.js",
+          "color-parse": "./color-parse/index.js",
+          "color-name": "./color-name/index.js",
+          "@geoblocks/print": "./print/dist/print.js",
+          "@geoblocks/mapfishprint": "./lib/index.js",
+          "@geoblocks/mapfishprint/": "./lib/"
+        }
+      }
+    </script>
+    <h1>Print Spec as pdf with Mapfish Print</h1>
+    <label>MFP URL</label>
+    <textarea id="mfpURL" style="height: 20px; width: 100%; background-color: lightgray"></textarea>
+    <label>Spec</label>
+    <textarea id="spec" style="height: 200px; width: 100%; background-color: lightgray"></textarea>
+    <button id="print">Print Spec!</button>
+    <button id="cancel">Cancel Print!</button>
+    </br>
+    <label>Report</label>
+    <textarea id="report" style="height: 100px; width: 100%; background-color: lightgray"></textarea>
+    <label>Result</label>
+    <textarea id="result" style="height: 50; width: 100%; background-color: lightgray"></textarea>
+    <script type="module" src="./printspec.js"></script>
+  </head>
+  <body></body>
+</html>
