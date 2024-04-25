@@ -1,8 +1,14 @@
 import type {Geometry} from 'ol/geom.js';
 import type {State} from 'ol/layer/Layer.js';
 import type {WMTS, TileWMS} from 'ol/source.js';
-import type {Image, Stroke} from 'ol/style.js';
-import type {MFPWmsLayer, MFPSymbolizerLine, MFPSymbolizerPoint, MFPWmtsLayer} from './types';
+import type {Image, Stroke, Text} from 'ol/style.js';
+import type {
+  MFPWmsLayer,
+  MFPSymbolizerLine,
+  MFPSymbolizerPoint,
+  MFPWmtsLayer,
+  MFPSymbolizerText,
+} from './types';
 import type {Feature as GeoJSONFeature} from 'geojson';
 
 /**
@@ -70,6 +76,8 @@ export default class BaseCustomizer {
    * @param image
    */
   point(layerState: State, symbolizer: MFPSymbolizerPoint, image: Image) {}
+
+  text(layerState: State, symbolizer: MFPSymbolizerText, text: Text) {}
 
   /**
    * Can be used to manipulate a converted WMTS layer
